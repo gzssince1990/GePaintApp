@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center">
+
+    <ImageView
+        android:id="@+id/large_stroke"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@mipmap/ic_large"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="30dp"
+        android:onClick="changeStrokeSize"/>
+    <ImageView
+        android:id="@+id/middle_stroke"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@mipmap/ic_middle"
+        android:onClick="changeStrokeSize"/>
+    <ImageView
+        android:id="@+id/small_stroke"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@mipmap/ic_small"
+        android:onClick="changeStrokeSize"/>
+
+</LinearLayout>

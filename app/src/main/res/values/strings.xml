@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Kids Tale</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_launcher">Kids Tale</string>
+    <string name="settings_bg_color_confirm">Choose</string>
+    <string name="settings_default_color_confirm">Default</string>
+    <string name="settings_bg_color_dialog">Color</string>
+
+    <string-array name="menu_options">
+        <item>Start</item>
+        <item>Play</item>
+        <item>Delete</item>
+    </string-array>
+</resources>
