@@ -79,7 +79,13 @@ public class MyView extends View {
         initialPaint();
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
+        if(myBitmap == null)
+            setBitmap(getMeasuredWidth(),getMeasuredHeight());
+    }
 
     public void initialPaint(){
         myPaint = new Paint();

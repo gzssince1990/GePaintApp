@@ -83,7 +83,7 @@ public class PaintActivity extends ActionBarActivity implements ColorPickerDialo
         myView = (MyView) findViewById(R.id.drawer);
         //that button is for me to test if I can add something to the same screen with myView;
         //testButton = (Button) findViewById(R.id.test_btn);
-        myView.setBitmap(width,height);
+        //myView.setBitmap(width,height);
 
         //Log.w("checking pa", "(" + width + ", " + height + ")"); debugger
 
