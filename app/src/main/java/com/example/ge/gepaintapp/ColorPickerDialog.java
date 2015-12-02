@@ -33,6 +33,14 @@ public class ColorPickerDialog extends Dialog {
         private int[] mMainColors = new int[65536];
         private OnColorChangedListener mListener;
 
+        private final int DEFAULT_SIZE_X = 256;
+        private final int DEFAULT_SIZE_Y = 326;
+        private final int ZOOM_VALUE = 3;
+        private final int CUSTOM_SIZE_X = DEFAULT_SIZE_X*ZOOM_VALUE;
+        private final int CUSTOM_SIZE_Y = DEFAULT_SIZE_Y*ZOOM_VALUE;
+        private final int DEFAULT_MARGIN = 10;
+        private final int CUSTOM_MARGIN = DEFAULT_MARGIN*ZOOM_VALUE;
+
         ColorPickerView(Context c, OnColorChangedListener l, int color,
                         int defaultColor) {
             super(c);
@@ -157,6 +165,8 @@ public class ColorPickerDialog extends Dialog {
         protected void onDraw(Canvas canvas) {
             int translatedHue = 255 - (int) (mCurrentHue * 255 / 360);
             // Display all the colors of the hue bar with lines
+
+
             for (int x = 0; x < 256; x++) {
                 // If this is not the current selected hue, display the actual
                 // color
@@ -168,19 +178,28 @@ public class ColorPickerDialog extends Dialog {
                     mPaint.setColor(Color.BLACK);
                     mPaint.setStrokeWidth(3);
                 }
-                canvas.drawLine(x + 10, 0, x + 10, 40, mPaint);
-                // canvas.drawLine(0, x+10, 40, x+10, mPaint);
+
+                mPaint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(
+                        x * ZOOM_VALUE + CUSTOM_MARGIN, 0,
+                        (x + 1) * ZOOM_VALUE + CUSTOM_MARGIN, 40 * ZOOM_VALUE, mPaint);
             }
+
+
 
             // Display the main field colors using LinearGradient
             for (int x = 0; x < 256; x++) {
                 int[] colors = new int[2];
                 colors[0] = mMainColors[x];
                 colors[1] = Color.BLACK;
-                Shader shader = new LinearGradient(0, 50, 0, 306, colors, null,
-                        Shader.TileMode.REPEAT);
+                Shader shader = new LinearGradient(0, 40*ZOOM_VALUE+CUSTOM_MARGIN,
+                        0, 306*ZOOM_VALUE,
+                        colors, null, Shader.TileMode.REPEAT);
                 mPaint.setShader(shader);
-                canvas.drawLine(x + 10, 50, x + 10, 306, mPaint);
+                //canvas.drawLine(x*ZOOM_VALUE + 10, 40*ZOOM_VALUE+10,
+                //        x*ZOOM_VALUE + 10, 306*ZOOM_VALUE, mPaint);
+                canvas.drawRect(x * ZOOM_VALUE + CUSTOM_MARGIN, 40 * ZOOM_VALUE + CUSTOM_MARGIN,
+                        (x + 1) * ZOOM_VALUE + CUSTOM_MARGIN, 306 * ZOOM_VALUE, mPaint);
             }
             mPaint.setShader(null);
 
@@ -195,7 +214,8 @@ public class ColorPickerDialog extends Dialog {
             // Draw a 'button' with the currently selected color
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setColor(mCurrentColor);
-            canvas.drawRect(10, 316, 138, 356, mPaint);
+            canvas.drawRect(CUSTOM_MARGIN, 306*ZOOM_VALUE+CUSTOM_MARGIN,
+                    128*ZOOM_VALUE+CUSTOM_MARGIN, (306+40)*ZOOM_VALUE + CUSTOM_MARGIN, mPaint);
 
             // Set the text color according to the brightness of the color
             if (Color.red(mCurrentColor) + Color.green(mCurrentColor)
@@ -205,13 +225,14 @@ public class ColorPickerDialog extends Dialog {
                 mPaint.setColor(Color.BLACK);
             canvas.drawText(
                     getResources()
-                            .getString(R.string.settings_bg_color_confirm), 74,
-                    340, mPaint);
+                            .getString(R.string.settings_bg_color_confirm), 64*ZOOM_VALUE+CUSTOM_MARGIN,
+                    (306+20)*ZOOM_VALUE+CUSTOM_MARGIN, mPaint);
 
             // Draw a 'button' with the default color
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setColor(mDefaultColor);
-            canvas.drawRect(138, 316, 266, 356, mPaint);
+            canvas.drawRect(128*ZOOM_VALUE+CUSTOM_MARGIN, 306*ZOOM_VALUE+CUSTOM_MARGIN,
+                    256*ZOOM_VALUE+CUSTOM_MARGIN, (306+40)*ZOOM_VALUE+CUSTOM_MARGIN, mPaint);
 
             // Set the text color according to the brightness of the color
             if (Color.red(mDefaultColor) + Color.green(mDefaultColor)
@@ -221,13 +242,14 @@ public class ColorPickerDialog extends Dialog {
                 mPaint.setColor(Color.BLACK);
             canvas.drawText(
                     getResources().getString(
-                            R.string.settings_default_color_confirm), 202, 340,
-                    mPaint);
+                            R.string.settings_default_color_confirm), 192*ZOOM_VALUE+CUSTOM_MARGIN,
+                    (306+20)*ZOOM_VALUE+CUSTOM_MARGIN, mPaint);
         }
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            setMeasuredDimension(276, 366);
+            //setMeasuredDimension(276, 366);
+            setMeasuredDimension(CUSTOM_SIZE_X+2*CUSTOM_MARGIN,CUSTOM_SIZE_Y+4*CUSTOM_MARGIN);
         }
 
         @Override
@@ -238,14 +260,14 @@ public class ColorPickerDialog extends Dialog {
             float y = event.getY();
 
             // If the touch event is located in the hue bar
-            if (x > 10 && x < 266 && y > 0 && y < 40) {
+            if (x > CUSTOM_MARGIN && x < 266*ZOOM_VALUE && y > 0 && y < 40*ZOOM_VALUE) {
                 // Update the main field colors
-                mCurrentHue = (255 - x) * 360 / 255;
+                mCurrentHue = (255 - x/ZOOM_VALUE) * 360 / 255;
                 updateMainColors();
 
                 // Update the current selected color
-                int transX = mCurrentX - 10;
-                int transY = mCurrentY - 60;
+                int transX = (mCurrentX - CUSTOM_MARGIN)/ZOOM_VALUE;
+                int transY = (mCurrentY - 50*ZOOM_VALUE-CUSTOM_MARGIN)/ZOOM_VALUE;
                 int index = 256 * (transY - 1) + transX;
                 if (index > 0 && index < mMainColors.length)
                     mCurrentColor = mMainColors[256 * (transY - 1) + transX];
@@ -255,11 +277,12 @@ public class ColorPickerDialog extends Dialog {
             }
 
             // If the touch event is located in the main field
-            if (x > 10 && x < 266 && y > 50 && y < 306) {
+            if (x > CUSTOM_MARGIN && x < 266*ZOOM_VALUE
+                    && y > 40*ZOOM_VALUE+CUSTOM_MARGIN && y < 306*ZOOM_VALUE) {
                 mCurrentX = (int) x;
                 mCurrentY = (int) y;
-                int transX = mCurrentX - 10;
-                int transY = mCurrentY - 60;
+                int transX = (mCurrentX - CUSTOM_MARGIN)/ZOOM_VALUE;
+                int transY = (mCurrentY - 50*ZOOM_VALUE-CUSTOM_MARGIN)/ZOOM_VALUE;
                 int index = 256 * (transY - 1) + transX;
                 if (index > 0 && index < mMainColors.length) {
                     // Update the current color
@@ -271,12 +294,16 @@ public class ColorPickerDialog extends Dialog {
 
             // If the touch event is located in the left button, notify the
             // listener with the current color
-            if (x > 10 && x < 138 && y > 316 && y < 356)
+            if (x > CUSTOM_MARGIN && x < 128*ZOOM_VALUE+CUSTOM_MARGIN
+                    && y > 306*ZOOM_VALUE+CUSTOM_MARGIN
+                    && y < (306+40)*ZOOM_VALUE+CUSTOM_MARGIN)
                 mListener.colorChanged("", mCurrentColor);
 
             // If the touch event is located in the right button, notify the
             // listener with the default color
-            if (x > 138 && x < 266 && y > 316 && y < 356)
+            if (x > 128*ZOOM_VALUE+CUSTOM_MARGIN && x < 256*ZOOM_VALUE+CUSTOM_MARGIN
+                    && y > 306*ZOOM_VALUE+ CUSTOM_MARGIN
+                    && y < (306+40)*ZOOM_VALUE+CUSTOM_MARGIN)
                 mListener.colorChanged("", mDefaultColor);
 
             return true;

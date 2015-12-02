@@ -75,6 +75,7 @@ public class MyView extends View {
         backgroundColor = Color.WHITE;
 
         myPath = new Path();
+        myCanvas = new Canvas();
 
         initialPaint();
     }
@@ -107,7 +108,6 @@ public class MyView extends View {
         backgroundBitmap = Bitmap.createBitmap(w,h, Bitmap.Config.ARGB_8888);
         backgroundCanvas.setBitmap(backgroundBitmap);
 
-        myCanvas = new Canvas();
         myBitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
         myCanvas.setBitmap(myBitmap);
 

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,9 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,13 +35,18 @@ import java.io.IOException;
 public class MyFragment extends Fragment {
 
     TestView testView;
-    TestView2 testView2;
-    int myColor;
     View myView;
-
     String fileName;
+    Type type;
 
-    //for Edit
+    //enums for checking the page type:
+    //Home page or a painting preview page
+    enum Type{
+        HOME_PAGE,
+        PREVIEW_PAGE
+    }
+
+    //Constants
     static final int EDIT_MODE = 1;
 
 
@@ -52,12 +54,12 @@ public class MyFragment extends Fragment {
     final static String _PNG = ".png";
     final static String _3GP = ".3gp";
 
-    public static MyFragment newInstance(int color, String fileName) {
+    public static MyFragment newInstance(Type type, String fileName) {
         MyFragment myFragment = new MyFragment();
 
         //Bundle args = new Bundle();
         //args.putInt("color", color);
-        myFragment.myColor = color;
+        myFragment.type = type;
         myFragment.fileName = fileName;
         //myFragment.setArguments(args);
 
@@ -67,14 +69,14 @@ public class MyFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
 
-        if (myColor == Color.RED){
+        if (type == Type.PREVIEW_PAGE){
 
             myView = inflater.inflate(R.layout.fragment_layout,container,false);
             testView = (TestView) myView.findViewById(R.id.drawer);
             testView.load(fileName + _PNG);
 
 
-        }else {
+        }else if(type == Type.HOME_PAGE){
             myView = inflater.inflate(R.layout.fragment_layout_test,container,false);
         }
 
@@ -83,16 +85,22 @@ public class MyFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(getActivity(),"I felt you",Toast.LENGTH_LONG).show();
-                WindowManager wm = getActivity().getWindowManager();
-                Display display = wm.getDefaultDisplay();
-                int screenWidth = display.getWidth();
-                int screenHeight = display.getHeight();
-                Intent intent = new Intent(getActivity(),PaintActivity.class);
-                intent.putExtra("width",screenWidth);
-                intent.putExtra("height",screenHeight);
-                intent.putExtra("fileName",fileName);
-                intent.putExtra("Mode",EDIT_MODE);
-                startActivity(intent);
+                if (type == Type.HOME_PAGE){
+                    Toast.makeText(getActivity(),
+                            "Long touch to start the menu",
+                            Toast.LENGTH_LONG).show();
+                }else if (type == Type.PREVIEW_PAGE){
+                    WindowManager wm = getActivity().getWindowManager();
+                    Display display = wm.getDefaultDisplay();
+                    int screenWidth = display.getWidth();
+                    int screenHeight = display.getHeight();
+                    Intent intent = new Intent(getActivity(),PaintActivity.class);
+                    intent.putExtra("width",screenWidth);
+                    intent.putExtra("height",screenHeight);
+                    intent.putExtra("fileName",fileName);
+                    intent.putExtra("Mode",EDIT_MODE);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -123,9 +131,9 @@ public class MyFragment extends Fragment {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         //Toast.makeText(getActivity(),optionStr[position],Toast.LENGTH_LONG).show();
-                        switch (position){
+                        switch (position) {
                             case 0:
-                                AlertDialog.Builder  alertDialog = new AlertDialog.Builder(getActivity());
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
                                 alertDialog.setTitle("New Story");
                                 //alertDialog.setIcon(R.drawable.ic_action_name);
                                 alertDialog.setMessage("Enter your story name ");
@@ -133,59 +141,63 @@ public class MyFragment extends Fragment {
                                 storyName.setInputType(InputType.TYPE_CLASS_TEXT);
                                 alertDialog.setView(storyName);
 
-                                alertDialog.setPositiveButton("OK", new AlertDialogListener(storyName) );
-                                alertDialog.setNegativeButton("Cancel",new AlertDialogListener(storyName) );
+                                alertDialog.setPositiveButton("OK", new AlertDialogListener(storyName));
+                                alertDialog.setNegativeButton("Cancel", new AlertDialogListener(storyName));
                                 alertDialog.show();
                                 dialog.dismiss();
                                 break;
                             case 1:
-                                MediaPlayer mPlayer = new MediaPlayer();
-                                String mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-                                mFileName += "/" + fileName + _3GP;
-                                try {
-                                    mPlayer.setDataSource(mFileName);
-                                    mPlayer.prepare();
-                                    mPlayer.start();
-                                } catch (IOException e) {
-                                    Log.e("AudioRecordTest", "prepare() failed");
-                                }
-
-                                //get path
-                                File dir = getActivity().getDir("text", Context.MODE_PRIVATE);
-                                File file = new File(dir,fileName);
-
-                                //String builder
-                                StringBuilder myText = new StringBuilder();
-
-                                //read file to map
-                                try {
-                                    BufferedReader reader = new BufferedReader(new FileReader(file));
-                                    String line;
-
-                                    while ((line = reader.readLine()) != null){
-                                        myText.append(line);
-                                        myText.append('\n');
+                                if (type == Type.PREVIEW_PAGE) {
+                                    MediaPlayer mPlayer = new MediaPlayer();
+                                    String mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+                                    mFileName += "/" + fileName + _3GP;
+                                    try {
+                                        mPlayer.setDataSource(mFileName);
+                                        mPlayer.prepare();
+                                        mPlayer.start();
+                                    } catch (IOException e) {
+                                        Log.e("AudioRecordTest", "prepare() failed");
                                     }
-                                    reader.close();
 
-                                } catch (FileNotFoundException e){
-                                    e.printStackTrace();
-                                } catch (IOException e){
-                                    e.printStackTrace();
+                                    //get path
+                                    File dir = getActivity().getDir("text", Context.MODE_PRIVATE);
+                                    File file = new File(dir, fileName);
+
+                                    //String builder
+                                    StringBuilder myText = new StringBuilder();
+
+                                    //read file to map
+                                    try {
+                                        BufferedReader reader = new BufferedReader(new FileReader(file));
+                                        String line;
+
+                                        while ((line = reader.readLine()) != null) {
+                                            myText.append(line);
+                                            myText.append('\n');
+                                        }
+                                        reader.close();
+
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    TextView storyText = (TextView) myView.findViewById(R.id.story_text_display);
+
+                                    if (view == null)
+                                        Log.w("Check view", "empty");
+                                    storyText.setText(myText.toString());
                                 }
-
-                                TextView storyText = (TextView) myView.findViewById(R.id.story_text_display);
-
-                                if (view == null)
-                                    Log.w("Check view","empty");
-                                storyText.setText(myText.toString());
 
                                 dialog.dismiss();
                                 break;
                             case 2:
-                                DatabaseManager myManager = new DatabaseManager(getActivity());
-                                myManager.delete(fileName);
-                                myManager.close();
+                                if (type == Type.PREVIEW_PAGE) {
+                                    DatabaseManager myManager = new DatabaseManager(getActivity());
+                                    myManager.delete(fileName);
+                                    myManager.close();
+                                }
                                 dialog.dismiss();
                                 break;
                         }
