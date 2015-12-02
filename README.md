@@ -10,3 +10,6 @@ Solve the issues Nice features
   1. Slide in menu - drawer
   2. Nicer background
   3.Nicer main menu
+
+#helper
+  1. https://www.diffchecker.com/diff
