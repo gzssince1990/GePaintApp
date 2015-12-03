@@ -10,5 +10,8 @@ Remove redundant files
 Solve the issues
 Nice features
   1. Slide in menu - drawer
-  2. Nicer background
   3. Nicer main menu
+
+#Done
+Nice features
+  2. Nicer background
